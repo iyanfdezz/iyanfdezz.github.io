@@ -1,0 +1,396 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Iyan Fernández</title>
+<style>
+/* Layout: one calm column, translucent nav floating over scrolling content, one draggable project rail as the single moving moment */
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --fg: #1b1d22;
+  --muted: #5d6370;
+  --line: rgba(27, 32, 48, 0.1);
+  --accent: #1f5bd8;
+  --accent-soft: rgba(31, 91, 216, 0.09);
+  --nav: rgba(245, 246, 248, 0.72);
+  --shadow: 0 1px 2px rgba(20, 28, 48, 0.05), 0 8px 28px rgba(20, 28, 48, 0.07);
+  --font: system-ui, -apple-system, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1013; --surface: #181b20; --fg: #eef0f4; --muted: #9aa1ae;
+    --line: rgba(220, 228, 245, 0.1); --accent: #6d9cff; --accent-soft: rgba(109, 156, 255, 0.13);
+    --nav: rgba(14, 16, 19, 0.7); --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1013; --surface: #181b20; --fg: #eef0f4; --muted: #9aa1ae;
+  --line: rgba(220, 228, 245, 0.1); --accent: #6d9cff; --accent-soft: rgba(109, 156, 255, 0.13);
+  --nav: rgba(14, 16, 19, 0.7); --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.35);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--fg);
+  font: 100%/1.55 var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 64rem; margin: 0 auto; padding-inline: max(1rem, 4vw); }
+
+/* Translucent nav: content scrolls under it, scroll-edge fade instead of a hard rule */
+nav {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+  background: var(--nav);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+nav::after {
+  content: ""; position: absolute; inset: 100% 0 auto; height: 14px; pointer-events: none;
+  background: linear-gradient(var(--nav), transparent);
+}
+nav .wrap { display: flex; align-items: center; gap: 1.5rem; height: 3.25rem; }
+.brand { font-weight: 600; letter-spacing: -0.01em; color: var(--fg); text-decoration: none; white-space: nowrap; }
+.links { display: flex; gap: 1.25rem; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
+.links::-webkit-scrollbar { display: none; }
+.links a { color: var(--muted); text-decoration: none; font-size: 0.875rem; letter-spacing: 0.005em; white-space: nowrap; transition: color 120ms ease-out; }
+.links a:hover { color: var(--fg); }
+
+a:focus-visible, button:focus-visible, .rail:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+/* Hero */
+.hero { padding-block: clamp(4rem, 12vw, 8rem) clamp(3rem, 8vw, 5rem); }
+.eyebrow { font: 500 0.78rem/1 var(--mono); color: var(--muted); letter-spacing: 0.02em; display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
+.eyebrow .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #2fbf71; margin-right: 0.45rem; vertical-align: 1px; }
+h1 {
+  font-size: clamp(2.6rem, 7.5vw, 5.2rem); line-height: 1.02; letter-spacing: -0.035em;
+  font-weight: 700; margin: 1.25rem 0 0; text-wrap: balance; font-optical-sizing: auto;
+}
+h1 .soft { color: var(--muted); font-weight: 600; }
+.lede { font-size: clamp(1.1rem, 2vw, 1.3rem); line-height: 1.5; color: var(--muted); max-width: 38rem; margin: 1.5rem 0 0; letter-spacing: -0.005em; }
+.lede strong { color: var(--fg); font-weight: 600; }
+.cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.2rem; border-radius: 980px;
+  font: 500 0.95rem/1 var(--font); text-decoration: none; border: 0; cursor: pointer;
+  background: var(--accent); color: #fff;
+  transition: transform 100ms ease-out, background-color 150ms ease-out;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.btn.ghost { background: var(--accent-soft); color: var(--accent); }
+.btn.pressed { transform: scale(0.97); } /* feedback on pointer-down, not release */
+
+/* Sections */
+section { padding-block: clamp(3rem, 7vw, 5rem); }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
+h2 { font-size: clamp(1.7rem, 3.6vw, 2.4rem); line-height: 1.1; letter-spacing: -0.025em; font-weight: 700; margin: 0; text-wrap: balance; }
+.label { font: 500 0.75rem/1 var(--mono); color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+
+/* Experience */
+.role { display: grid; grid-template-columns: 11rem 1fr; gap: 0.5rem 2rem; padding-block: 1.5rem; border-top: 1px solid var(--line); }
+.role:last-child { border-bottom: 1px solid var(--line); }
+.role .when { font: 0.85rem/1.6 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.role h3 { font-size: 1.2rem; letter-spacing: -0.015em; margin: 0; font-weight: 600; }
+.role .org { color: var(--muted); margin: 0.15rem 0 0.75rem; }
+.role ul { margin: 0; padding-left: 1.1rem; color: var(--fg); max-width: 40rem; display: grid; gap: 0.35rem; }
+.role ul li::marker { color: var(--muted); }
+.role > div { min-width: 0; }
+
+/* Project rail */
+.rail-controls { display: flex; gap: 0.5rem; }
+.icon-btn {
+  width: 2.25rem; height: 2.25rem; border-radius: 50%; border: 0; cursor: pointer;
+  background: var(--accent-soft); color: var(--accent); display: grid; place-items: center;
+  transition: transform 100ms ease-out, opacity 150ms ease-out; -webkit-tap-highlight-color: transparent;
+}
+.icon-btn.pressed { transform: scale(0.92); }
+.icon-btn:disabled { opacity: 0.35; cursor: default; }
+.rail { overflow: hidden; margin-inline: calc(-1 * max(1rem, 4vw)); padding-inline: max(1rem, 4vw); padding-block: 0.5rem 1.5rem; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
+.rail.dragging { cursor: grabbing; }
+.track { display: flex; gap: 1rem; will-change: transform; }
+.card {
+  flex: 0 0 min(20rem, 82vw); background: var(--surface); border-radius: 22px; box-shadow: var(--shadow);
+  padding: 1.25rem; display: flex; flex-direction: column; gap: 0.9rem; min-width: 0;
+}
+.thumb {
+  aspect-ratio: 16 / 10; max-width: 100%; border-radius: 14px; border: 1.5px dashed var(--line);
+  background: repeating-linear-gradient(135deg, var(--accent-soft) 0 10px, transparent 10px 20px);
+  display: grid; place-items: center; color: var(--muted); font: 0.78rem var(--mono);
+}
+.card h3 { margin: 0; font-size: 1.15rem; letter-spacing: -0.015em; font-weight: 600; }
+.card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: auto; }
+.tag { font: 0.75rem/1 var(--mono); padding: 0.4rem 0.55rem; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.tag.tbd { background: transparent; border: 1px dashed var(--line); color: var(--muted); }
+.dots { display: flex; justify-content: center; gap: 0.4rem; }
+.dots span { width: 6px; height: 6px; border-radius: 3px; background: var(--line); transition: width 200ms ease-out, background-color 200ms ease-out; }
+.dots span.on { width: 18px; background: var(--accent); }
+
+/* Skills */
+.skills { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 2rem 2.5rem; }
+.skills h3 { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.75rem; letter-spacing: -0.005em; }
+.chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.chip { font-size: 0.85rem; padding: 0.35rem 0.7rem; border-radius: 980px; background: var(--surface); border: 1px solid var(--line); }
+.chip.next { border-style: dashed; color: var(--muted); }
+.note { margin-top: 1.75rem; color: var(--muted); font-size: 0.9rem; }
+
+/* Education */
+.edu { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; }
+.edu-item { padding: 1.5rem; border-radius: 22px; background: var(--surface); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 0.35rem; }
+.edu-item h3 { margin: 0.4rem 0 0; font-size: 1.1rem; letter-spacing: -0.015em; line-height: 1.3; }
+.edu-item p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.score { font: 600 2rem/1 var(--font); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; margin-top: 0.5rem; }
+.score small { font-size: 1rem; color: var(--muted); font-weight: 500; }
+
+/* Contact */
+.contact { text-align: left; }
+.contact p { color: var(--muted); max-width: 34rem; font-size: 1.1rem; margin: 1rem 0 0; }
+.mail { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-top: 1.75rem; }
+.mail code { font: 1rem var(--mono); padding: 0.7rem 1rem; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); user-select: all; overflow-wrap: anywhere; }
+.status { font-size: 0.85rem; color: var(--muted); min-height: 1.2em; }
+footer { padding-block: 2.5rem 3rem; color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--line); margin-top: 2rem; }
+
+@media (max-width: 40rem) {
+  .role { grid-template-columns: 1fr; }
+  nav .wrap { gap: 1rem; }
+  .links { gap: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .btn, .icon-btn, .dots span { transition: opacity 150ms ease; }
+  .btn.pressed, .icon-btn.pressed { transform: none; opacity: 0.75; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  nav { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+@media (prefers-contrast: more) {
+  .card, .edu-item { box-shadow: none; border: 1px solid var(--fg); }
+}
+</style>
+
+<nav aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#top">Iyan Fernández</a>
+    <div class="links">
+      <a href="#experience">Experience</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#education">Education</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+  <header class="hero wrap">
+    <div class="eyebrow">
+      <span><span class="dot" aria-hidden="true"></span>Software Engineer · AI</span>
+      <span>Asturias, Spain · CET</span>
+    </div>
+    <h1>Software engineer.<br><span class="soft">Building with AI.</span></h1>
+    <p class="lede">I build software that puts AI to work: <strong>LLM-powered features</strong> and the full-stack apps around them. I'm currently studying a <strong>Master's in Artificial Intelligence</strong> and care about clean, secure, well-tested code.</p>
+    <div class="cta">
+      <a class="btn press" href="#projects">See projects</a>
+      <a class="btn ghost press" href="#contact">Get in touch</a>
+    </div>
+  </header>
+
+  <section id="experience" class="wrap" aria-labelledby="exp-h">
+    <div class="sec-head"><h2 id="exp-h">Professional experience</h2><span class="label">~1.5 years professional</span></div>
+    <article class="role">
+      <div class="when">Feb 2025 – Present</div>
+      <div>
+        <h3>Software Developer</h3>
+        <p class="org">Seresco S.A. · Oviedo</p>
+        <ul>
+          <li>Develop and maintain Java/Spring web applications for the Xunta de Galicia, from JSF/XHTML views to service and data layers.</li>
+          <li>Resolve SonarQube static-analysis findings with security-focused fixes across a large codebase.</li>
+          <li>Build cross-application integrations between internal systems, including shared navigation for third-party record management.</li>
+          <li>Work with PostgreSQL and Oracle, deploy through Jenkins, and test with JUnit and Mockito.</li>
+        </ul>
+      </div>
+    </article>
+  </section>
+
+  <section id="projects" aria-labelledby="proj-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="proj-h">Selected projects</h2>
+        <div class="rail-controls">
+          <button class="icon-btn" id="prev" aria-label="Previous project"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2 4 7l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button class="icon-btn" id="next" aria-label="Next project"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="m5 2 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+      </div>
+      <div class="rail" id="rail" tabindex="0" aria-roledescription="carousel" aria-label="Projects. Drag, swipe or use arrow keys.">
+        <div class="track" id="track">
+          <article class="card"><div class="thumb">Screenshot coming soon</div><h3>Project one</h3><p>Placeholder. A one-line summary of what it does and who it's for goes here.</p><div class="tags"><span class="tag tbd">Stack</span><span class="tag tbd">Role</span></div></article>
+          <article class="card"><div class="thumb">Screenshot coming soon</div><h3>Project two</h3><p>Placeholder. Describe the problem, your approach, and one measurable result.</p><div class="tags"><span class="tag tbd">Stack</span><span class="tag tbd">Year</span></div></article>
+          <article class="card"><div class="thumb">Screenshot coming soon</div><h3>Project three</h3><p>Placeholder. Link the repo or a live demo once it's ready.</p><div class="tags"><span class="tag tbd">Stack</span><span class="tag tbd">Repo</span></div></article>
+          <article class="card"><div class="thumb">Screenshot coming soon</div><h3>Project four</h3><p>Placeholder. Room for an AI or data project from the Master's.</p><div class="tags"><span class="tag tbd">Stack</span><span class="tag tbd">Demo</span></div></article>
+          <article class="card"><div class="thumb">Screenshot coming soon</div><h3>Project five</h3><p>Placeholder. Keep it short; the details can live on the project page.</p><div class="tags"><span class="tag tbd">Stack</span><span class="tag tbd">Status</span></div></article>
+        </div>
+      </div>
+      <div class="dots" id="dots" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section id="skills" class="wrap" aria-labelledby="skills-h">
+    <div class="sec-head"><h2 id="skills-h">Skills</h2></div>
+    <div class="skills">
+      <div><h3>AI</h3><div class="chips"><span class="chip">LLM integration</span><span class="chip">OpenAI API</span><span class="chip">Claude API</span><span class="chip next">RAG</span><span class="chip next">Embeddings</span><span class="chip next">Tool use / MCP</span></div></div>
+      <div><h3>Languages</h3><div class="chips"><span class="chip">Python</span><span class="chip">TypeScript</span><span class="chip">JavaScript</span></div></div>
+      <div><h3>Backend</h3><div class="chips"><span class="chip">Java</span><span class="chip">Spring Boot</span><span class="chip">Node.js</span><span class="chip">Microservices</span><span class="chip">JUnit</span><span class="chip">Mockito</span></div></div>
+      <div><h3>Frontend &amp; mobile</h3><div class="chips"><span class="chip">React</span><span class="chip">React Native</span></div></div>
+      <div><h3>Data</h3><div class="chips"><span class="chip">PostgreSQL</span><span class="chip">Oracle</span><span class="chip">MongoDB</span><span class="chip">Redis</span></div></div>
+      <div><h3>DevOps &amp; cloud</h3><div class="chips"><span class="chip">Docker</span><span class="chip">Linux</span><span class="chip">Jenkins</span><span class="chip">GitHub Actions</span><span class="chip">Azure</span></div></div>
+    </div>
+    <p class="note">Dashed chips are what I'm learning next.</p>
+  </section>
+
+  <section id="education" class="wrap" aria-labelledby="edu-h">
+    <div class="sec-head"><h2 id="edu-h">Education</h2></div>
+    <div class="edu">
+      <div class="edu-item"><span class="label">In progress</span><h3>Master's in Artificial Intelligence</h3><p>UNIR (Universidad Internacional de La Rioja)</p></div>
+      <div class="edu-item"><span class="label">2021 – 2025</span><h3>BSc in Software Engineering</h3><p>Universidad de Oviedo. Final project: TicketApp, a microservices app built with Node and React.</p></div>
+      <div class="edu-item"><span class="label">English</span><h3>Cambridge C1 Advanced</h3><div class="score">207<small> / 210 · CEFR C2</small></div></div>
+    </div>
+  </section>
+
+  <section id="contact" class="wrap contact" aria-labelledby="contact-h">
+    <h2 id="contact-h">Let's talk.</h2>
+    <p>Open to software engineering roles in applied AI. Email is the fastest way to reach me.</p>
+    <div class="mail">
+      <code id="email">iyan.fdez.riol@gmail.com</code>
+      <button class="btn press" id="copy">Copy email</button>
+      <a class="btn ghost press" href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn ghost press" href="https://www.linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+  </section>
+</main>
+
+<footer><div class="wrap">© 2026 Iyan Fernández · Built with care in Asturias</div></footer>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Press feedback on pointer-down
+  document.querySelectorAll('.press, .icon-btn').forEach(el => {
+    const on = () => el.classList.add('pressed');
+    const off = () => el.classList.remove('pressed');
+    el.addEventListener('pointerdown', on);
+    ['pointerup', 'pointerleave', 'pointercancel', 'blur'].forEach(t => el.addEventListener(t, off));
+  });
+
+  // Copy email
+  const copy = document.getElementById('copy'), status = document.getElementById('status'), email = document.getElementById('email');
+  copy.addEventListener('click', () => {
+    const text = email.textContent.trim();
+    const select = () => { const r = document.createRange(); r.selectNodeContents(email); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+    try {
+      navigator.clipboard.writeText(text).then(() => { status.textContent = 'Email copied.'; }, () => { select(); status.textContent = 'Selected. Press Ctrl/⌘ + C to copy.'; });
+    } catch { select(); status.textContent = 'Selected. Press Ctrl/⌘ + C to copy.'; }
+  });
+
+  // Project rail: 1:1 drag, momentum projection, rubber-banding, interruptible springs
+  const rail = document.getElementById('rail'), track = document.getElementById('track');
+  const cards = [...track.children], dots = document.getElementById('dots');
+  const prev = document.getElementById('prev'), next = document.getElementById('next');
+  cards.forEach(() => dots.appendChild(document.createElement('span')));
+
+  let x = 0, v = 0, target = 0, raf = 0, snaps = [], minX = 0;
+  let spring = { damping: 1, response: 0.4 };
+
+  function measure() {
+    const gap = parseFloat(getComputedStyle(track).gap) || 0;
+    const w = cards[0].offsetWidth + gap;
+    const visible = rail.clientWidth - parseFloat(getComputedStyle(rail).paddingLeft) * 2;
+    minX = Math.min(0, -(track.scrollWidth - visible));
+    snaps = cards.map((_, i) => Math.max(minX, -i * w)).filter((s, i, a) => i === 0 || s !== a[i - 1]);
+  }
+  const clampIdx = i => Math.max(0, Math.min(snaps.length - 1, i));
+  const nearest = p => snaps.reduce((b, s, i) => Math.abs(s - p) < Math.abs(snaps[b] - p) ? i : b, 0);
+  function render() {
+    track.style.transform = `translate3d(${x}px,0,0)`;
+    const i = nearest(x);
+    [...dots.children].forEach((d, k) => d.classList.toggle('on', k === i));
+    dots.style.display = snaps.length > 1 ? '' : 'none';
+    prev.disabled = i === 0; next.disabled = i === snaps.length - 1;
+  }
+  function rubber(over, dim, c = 0.55) { return (over * dim * c) / (dim + c * Math.abs(over)); }
+  function project(vel, d = 0.998) { return (vel / 1000) * d / (1 - d); }
+
+  // Spring defined by damping ratio + response (Apple's parameters); starts from the live value
+  function animateTo(t, opts = {}) {
+    target = t; spring = { damping: opts.damping ?? 1, response: opts.response ?? 0.4 };
+    if (opts.velocity !== undefined) v = opts.velocity;
+    if (reduce) { x = t; v = 0; render(); return; }
+    cancelAnimationFrame(raf);
+    let last = performance.now();
+    const step = now => {
+      const dt = Math.min(0.032, (now - last) / 1000); last = now;
+      const k = Math.pow(2 * Math.PI / spring.response, 2), c = 4 * Math.PI * spring.damping / spring.response;
+      v += (-k * (x - target) - c * v) * dt; x += v * dt;
+      if (Math.abs(x - target) < 0.3 && Math.abs(v) < 5) { x = target; v = 0; render(); return; }
+      render(); raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  }
+  const go = i => animateTo(snaps[clampIdx(i)]);
+  prev.addEventListener('click', () => go(nearest(target) - 1));
+  next.addEventListener('click', () => go(nearest(target) + 1));
+  rail.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(nearest(target) + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(nearest(target) - 1); }
+  });
+
+  let drag = null, moved = false;
+  rail.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    cancelAnimationFrame(raf); // grab mid-flight: keep current x, no jump
+    drag = { id: e.pointerId, sx: e.clientX, sy: e.clientY, start: x, axis: null, hist: [{ x: e.clientX, t: e.timeStamp }] };
+    moved = false;
+  });
+  rail.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    if (!drag.axis) {
+      if (Math.hypot(dx, dy) < 10) return; // hysteresis
+      drag.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+      if (drag.axis === 'y') { drag = null; animateTo(snaps[nearest(x)]); return; }
+      rail.setPointerCapture(e.pointerId); rail.classList.add('dragging'); moved = true;
+    }
+    let nx = drag.start + dx;
+    if (nx > 0) nx = rubber(nx, rail.clientWidth);
+    else if (nx < minX) nx = minX + rubber(nx - minX, rail.clientWidth);
+    x = nx; render();
+    drag.hist.push({ x: e.clientX, t: e.timeStamp });
+    if (drag.hist.length > 6) drag.hist.shift();
+  });
+  function release(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    const h = drag.hist, a = h[0], b = h[h.length - 1];
+    const vel = b.t > a.t ? (b.x - a.x) / (b.t - a.t) * 1000 : 0;
+    const wasDrag = drag.axis === 'x'; drag = null; rail.classList.remove('dragging');
+    if (!wasDrag) { animateTo(snaps[nearest(x)]); return; }
+    const projected = x + project(vel);
+    let i = nearest(projected);
+    const cur = nearest(x);
+    if (Math.abs(vel) > 300 && i === cur) i = clampIdx(cur + (vel < 0 ? 1 : -1)); // a flick always moves at least one
+    const flick = Math.abs(vel) > 300;
+    animateTo(snaps[i], { velocity: vel, damping: flick ? 0.8 : 1, response: flick ? 0.38 : 0.4 });
+  }
+  rail.addEventListener('pointerup', release);
+  rail.addEventListener('pointercancel', release);
+  rail.addEventListener('click', e => { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
+  rail.addEventListener('dragstart', e => e.preventDefault());
+
+  measure(); render();
+  addEventListener('resize', () => { const i = nearest(target); measure(); x = target = snaps[clampIdx(i)]; v = 0; render(); });
+})();
+</script>
+
+</body></html>
